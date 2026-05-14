@@ -13,14 +13,16 @@ In Mealie:
 
 In Planner:
 
-- [ ]Click the gear icon in the planner to open settings. 
+- [ ] Click the gear icon in the planner to open settings. 
 - [ ] Enter your Mealie URL and paste the token there. 
 
 Once you save, it will sync your recipes and you are ready to go.
 
 ## Planning your week
 
-You can click any empty spot on the grid to choose a recipe from your library. If you want a random suggestion, hit the Sparkle button. It usually picks things you ate on the same day last week to help keep things relevant. You can drag and drop recipes to swap days, and use your arrow keys to move between weeks. If you need to see the full details of a dish, the arrow icon will take you directly to the recipe in Mealie. If you change your mind about a meal, click the X to remove it. There is an undo button if you make a mistake.
+You can click any empty spot on the grid to choose a recipe from your library. If you want a random suggestion, hit the Sparkle button. It usually picks things you ate on the same day last week to help keep things relevant. 
+
+Drag and drop recipes to swap days, and (on desktop) use your arrow keys to move between weeks. If you need to see the full details of a recipe, the arrow icon will take you directly to the recipe in Mealie. 
 
 ## Managing the details
 
