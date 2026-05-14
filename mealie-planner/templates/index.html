@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mealie Planner</title>
-  <!-- Alpine: vendor assets/alpine.min.js for offline/HA installs (see CONTRIBUTING.md) -->
-  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="{{ ingress_path }}/assets/alpine.min.js"></script>
   <script>
     const INGRESS_PATH = "{{ ingress_path }}";
     function api(path) { return INGRESS_PATH + path; }

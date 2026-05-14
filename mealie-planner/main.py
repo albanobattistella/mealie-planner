@@ -1,9 +1,12 @@
 import asyncio
+import hmac
 import json
 import logging
 import os
 import random
+import re
 import time
+import uuid as _uuid_mod
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 
@@ -18,7 +21,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from starlette.middleware.base import BaseHTTPMiddleware
 from urllib.parse import urlparse
 
@@ -64,9 +67,10 @@ class _RateLimiter:
         self._buckets: dict[str, list[float]] = {}
 
     def _client_ip(self, request: Request) -> str:
-        forwarded = request.headers.get("X-Forwarded-For", "")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
+        if not _DOCKER_MODE:  # HAOS ingress sets a trusted X-Forwarded-For
+            forwarded = request.headers.get("X-Forwarded-For", "")
+            if forwarded:
+                return forwarded.split(",")[0].strip()
         return request.client.host if request.client else "unknown"
 
     def check(
@@ -87,6 +91,58 @@ class _RateLimiter:
 
 
 _rate_limiter = _RateLimiter()
+
+# Input validation helpers
+_UUID_RE = re.compile(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+    re.IGNORECASE,
+)
+_SLUG_RE = re.compile(r'^[a-zA-Z0-9_-]{1,200}$')
+_VALID_MEAL_TYPES = {"breakfast", "lunch", "dinner", "side"}
+
+
+def _require_uuid(val: str, name: str = "ID") -> None:
+    if not _UUID_RE.match(val):
+        raise HTTPException(status_code=400, detail=f"Invalid {name}.")
+
+
+def _require_slug(val: str, name: str = "slug") -> None:
+    if not _SLUG_RE.match(val):
+        raise HTTPException(status_code=400, detail=f"Invalid {name}.")
+
+
+def _require_int_id(val: str, name: str = "ID") -> None:
+    if not val.isdigit() or int(val) <= 0:
+        raise HTTPException(status_code=400, detail=f"Invalid {name}.")
+
+
+def _require_date(val: str) -> None:
+    try:
+        datetime.strptime(val, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date. Use YYYY-MM-DD.")
+
+
+# Security headers
+_CSP = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src https://fonts.gstatic.com; "
+    "img-src 'self' data: blob:; "
+    "connect-src 'self'; "
+    "frame-ancestors 'self';"
+)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Content-Security-Policy"] = _CSP
+        return response
+
 
 # Paths
 DATA_PATH = "/data" if os.path.exists("/data") else "./data"
@@ -537,6 +593,7 @@ class IngressAndAuthMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(IngressAndAuthMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 # Routes
@@ -587,15 +644,17 @@ async def verify_pin(payload: PinPayload, request: Request, response: Response):
             status_code=429, detail="Too many attempts. Try again later."
         )
 
-    if payload.pin != _PIN_CODE:
+    if not hmac.compare_digest(payload.pin, _PIN_CODE):
         raise HTTPException(status_code=401, detail="Incorrect PIN")
 
+    _secure = request.url.scheme == "https"
     response.set_cookie(
         key=_SESSION_COOKIE,
         value=_create_session_token(),
         max_age=_SESSION_TTL,
         httponly=True,
         samesite="lax",
+        secure=_secure,
     )
     return {"ok": True}
 
@@ -638,6 +697,15 @@ async def get_config():
 class ConfigPayload(BaseModel):
     mealie_url: str
     api_token: str = ""
+
+    @field_validator("mealie_url")
+    @classmethod
+    def _check_url(cls, v: str) -> str:
+        v = v.strip()
+        parsed = urlparse(v)
+        if parsed.scheme not in ("http", "https") or not parsed.netloc:
+            raise ValueError("URL must be a valid http or https address.")
+        return v
 
 
 @app.post("/api/config")
@@ -700,6 +768,7 @@ async def force_cache_refresh(request: Request):
 
 @app.get("/api/media/{recipe_id}")
 async def proxy_recipe_image(recipe_id: str):
+    _require_uuid(recipe_id, "recipe ID")
     url, token = get_credentials()
     if not url or not token:
         raise HTTPException(status_code=400, detail="Mealie not configured")
@@ -728,6 +797,7 @@ async def proxy_recipe_image(recipe_id: str):
 
 @app.get("/api/recipe-link/{slug}")
 async def recipe_link(slug: str):
+    _require_slug(slug, "recipe slug")
     url, _ = get_credentials()
     if not url:
         raise HTTPException(status_code=400, detail="Mealie not configured")
@@ -736,6 +806,7 @@ async def recipe_link(slug: str):
 
 @app.get("/api/recipes/{slug}")
 async def get_recipe(slug: str):
+    _require_slug(slug, "recipe slug")
     data = await mealie_get(f"/api/recipes/{slug}")
     return {
         "id": data.get("id"),
@@ -764,6 +835,8 @@ def _normalize_entry(entry: dict) -> dict:
 
 @app.get("/api/mealplan")
 async def get_mealplan(start_date: str, end_date: str):
+    _require_date(start_date)
+    _require_date(end_date)
     data = await mealie_get(
         f"/api/households/mealplans?start_date={start_date}&end_date={end_date}&perPage=50"
     )
@@ -775,6 +848,31 @@ class MealPlanEntry(BaseModel):
     date: str
     meal_type: str = "dinner"
     recipe_id: str
+
+    @field_validator("date")
+    @classmethod
+    def _check_date(cls, v: str) -> str:
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("Use YYYY-MM-DD format.")
+        return v
+
+    @field_validator("meal_type")
+    @classmethod
+    def _check_meal_type(cls, v: str) -> str:
+        if v not in _VALID_MEAL_TYPES:
+            raise ValueError("Must be breakfast, lunch, dinner, or side.")
+        return v
+
+    @field_validator("recipe_id")
+    @classmethod
+    def _check_recipe_id(cls, v: str) -> str:
+        try:
+            _uuid_mod.UUID(v)
+        except ValueError:
+            raise ValueError("Invalid recipe ID.")
+        return v
 
 
 @app.post("/api/mealplan")
@@ -794,6 +892,7 @@ async def create_mealplan_entry(entry: MealPlanEntry, request: Request):
 
 @app.delete("/api/mealplan/{entry_id}")
 async def delete_mealplan_entry(entry_id: str, request: Request):
+    _require_int_id(entry_id, "entry ID")
     if not _rate_limiter.check(request, key="mealplan", max_hits=30):
         raise HTTPException(status_code=429, detail="Too many requests.")
     await mealie_delete(f"/api/households/mealplans/{entry_id}")
@@ -841,11 +940,19 @@ async def get_recipe_actions():
 class RecipeActionTrigger(BaseModel):
     recipe_slug: str
 
+    @field_validator("recipe_slug")
+    @classmethod
+    def _check_slug(cls, v: str) -> str:
+        if not _SLUG_RE.match(v):
+            raise ValueError("Invalid recipe slug.")
+        return v
+
 
 @app.post("/api/recipe-actions/{action_id}/trigger")
 async def trigger_recipe_action(
     action_id: str, payload: RecipeActionTrigger, request: Request
 ):
+    _require_uuid(action_id, "action ID")
     if not _rate_limiter.check(request, key="recipe-action", max_hits=20):
         raise HTTPException(status_code=429, detail="Too many requests.")
 
