@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2
+
+- Security: your Mealie URL is now checked to be a proper web address before it gets saved
+- Security: PIN attempts are now compared in a way that prevents guessing by response time
+- Security: bad date or ID values in requests are rejected before they reach Mealie
+- Security: Alpine.js is now bundled locally — no more loading it from an external website
+- Security: the add-on now sends standard browser security headers with every response
+- Fix: too many requests from the same device are now correctly counted in Docker mode
+
 ## 0.2.1
 
 - Minor changes to the look and feel
