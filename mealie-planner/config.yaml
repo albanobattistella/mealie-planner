@@ -1,16 +1,26 @@
 name: "Mealie Planner"
 description: "A simple kitchen planner for Mealie. Browse your recipe library and plan meals for the week"
 url: "https://github.com/hawkinslabdev/mealie-planner"
-version: "0.2.2"
+version: "0.2.3"
 slug: "mealie_planner"
 arch:
   - aarch64
   - amd64
-  - armhf
+startup: application
 init: false
 ingress: true
 ingress_port: 3000
 panel_icon: "mdi:silverware-variant"
+
+# Security
+apparmor: true
+hassio_role: default
+host_network: false
+host_pid: false
+host_ipc: false
+full_access: false
+docker_api: false
+
 options:
   mealie_url: ""
   api_token: ""
