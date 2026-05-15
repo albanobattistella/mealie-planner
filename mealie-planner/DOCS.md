@@ -8,7 +8,7 @@ To set it up, you will need to link your Mealie account.
 
 In Mealie: 
 
-- [ ] Go to your Profile in Mealie and look for API Tokens. 
+- [ ] Go to your Profile in Mealie and look for [API Tokens](https://docs.mealie.io/documentation/getting-started/api-usage/#getting-a-token). 
 - [ ] Generate a new one and copy it. 
 
 In Planner:

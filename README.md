@@ -22,6 +22,8 @@ We want to make it incredibly simple to plan your meals for the week ahead. Mana
 3. Paste `https://github.com/hawkinslabdev/mealie-planner` and click **Add**
 4. Search for **Mealie Planner** and click **Install**
 
+When that's done then start the add-on, and enter your Mealie instance and [API key](https://docs.mealie.io/documentation/getting-started/api-usage/#getting-a-token).
+
 ### Docker Compose
 
 ```yaml
@@ -39,7 +41,7 @@ services:
     restart: unless-stopped
 ```
 
-After starting the container, the application will be available at `http://localhost:3000`.
+After starting the container, the application will be available at `http://localhost:3000`. 
 
 ## License
 

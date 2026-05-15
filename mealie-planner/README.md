@@ -4,7 +4,7 @@ A week-view meal planner for [Mealie](https://mealie.io). Browse your recipe lib
 
 ## Requirements
 
-A running Mealie instance accessible from your network, and a Mealie API token.
+A running Mealie instance accessible from your network, and a [Mealie API](https://docs.mealie.io/documentation/getting-started/api-usage/#getting-a-token) token.
 
 ## Configuration
 
