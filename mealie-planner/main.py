@@ -395,6 +395,8 @@ async def _get_cached_recipes(query: str | None = None) -> list[dict]:
 # Cache refresh
 _refresh_lock = asyncio.Lock()
 _refresh_in_progress = False
+_last_poll_at: int = 0
+_POLL_COOLDOWN_S: int = 30
 
 
 async def refresh_recipe_cache() -> int:
@@ -775,6 +777,50 @@ async def save_config(payload: ConfigPayload, request: Request):
 async def get_recipes(q: str | None = None):
     await ensure_cache_fresh()
     return await _get_cached_recipes(q)
+
+
+@app.get("/api/recipes/poll")
+async def poll_recipe_changes():
+    """One cheap Mealie call to detect new/updated recipes since last cache refresh."""
+    global _last_poll_at, _refresh_in_progress
+    now = int(time.time())
+    if now - _last_poll_at < _POLL_COOLDOWN_S:
+        return {"stale": False}
+    _last_poll_at = now
+
+    try:
+        url, token = get_credentials()
+        if not url or not token:
+            return {"stale": False}
+
+        last_refreshed = await _cache_last_refreshed()
+        if last_refreshed is None:
+            return {"stale": True}
+
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(
+                f"{url.rstrip('/')}/api/recipes",
+                params={"page": 1, "perPage": 1, "orderBy": "dateUpdated", "orderDirection": "desc"},
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            resp.raise_for_status()
+            items = resp.json().get("items", [])
+
+        if not items:
+            return {"stale": False}
+
+        date_updated = items[0].get("dateUpdated") or ""
+        if not date_updated:
+            return {"stale": False}
+
+        dt = datetime.fromisoformat(date_updated.replace("Z", "+00:00"))
+        recipe_ts = int(dt.timestamp())
+        stale = recipe_ts > last_refreshed
+        if stale and not _refresh_in_progress:
+            _task_manager.spawn(refresh_recipe_cache())
+        return {"stale": stale}
+    except Exception:
+        return {"stale": False}
 
 
 @app.post("/api/cache/refresh")

@@ -3,68 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0d1117">
+  <meta name="theme-color" content="#1c1b19">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ ingress_path }}/favicon.ico" sizes="any">
-  <title>Mealie Planner: Unlock</title>
+  <title>Mealie Planner &middot; Unlock</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0d1117;
-      --surface:     #161b22;
-      --border:      #21262d;
-      --accent:      #6e7ef1;
-      --accent-hover:#7f8ef5;
-      --text:        #e6edf3;
-      --text-subtle: #8b949e;
-      --text-muted:  #484f58;
-      --error:       #f85149;
-      --radius:      12px;
+      --bg:          oklch(11% 0 0);
+      --surface:     oklch(16% 0.004 70);
+      --border:      oklch(30% 0.004 70);
+      --border-focus:oklch(60% 0.11 275);
+      --accent:      oklch(60% 0.11 275);
+      --on-accent:   oklch(98% 0.002 70);
+      --text:        oklch(93% 0.004 70);
+      --text-subtle: oklch(57% 0.006 70);
+      --text-muted:  oklch(38% 0.005 70);
+      --error:       oklch(58% 0.22 28);
+      --meal-bf:     oklch(74% 0.13 68);
+      --meal-lu:     oklch(67% 0.15 142);
+      --meal-di:     oklch(60% 0.20 15);
+      --meal-si:     oklch(64% 0.11 195);
+      --radius:      10px;
     }
 
     @media (prefers-color-scheme: light) {
       :root {
-        --bg:          #faf8f5;
-        --surface:     #fff;
-        --border:      #e6e1d6;
-        --accent:      #6e7ef1;
-        --accent-hover:#5d6de0;
-        --text:        #1f1b16;
-        --text-subtle: #8a857c;
-        --text-muted:  #bab5ab;
-        --error:       #e03e3e;
+        --bg:          oklch(98% 0.004 70);
+        --surface:     oklch(95% 0.005 70);
+        --border:      oklch(82% 0.004 70);
+        --border-focus:oklch(42% 0.12 275);
+        --accent:      oklch(42% 0.12 275);
+        --on-accent:   oklch(98% 0.002 70);
+        --text:        oklch(16% 0.006 70);
+        --text-subtle: oklch(46% 0.007 70);
+        --text-muted:  oklch(70% 0.005 70);
+        --error:       oklch(42% 0.25 25);
+        --meal-bf:     oklch(50% 0.16 65);
+        --meal-lu:     oklch(44% 0.18 142);
+        --meal-di:     oklch(44% 0.22 15);
+        --meal-si:     oklch(46% 0.13 195);
       }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
 
     body {
       min-height: 100dvh;
       background: var(--bg);
       color: var(--text);
-      font-family: "Inter", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      font-optical-sizing: auto;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      -webkit-font-smoothing: antialiased;
     }
 
     .card {
       width: 100%;
-      max-width: 360px;
+      max-width: 340px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 36px;
+      gap: 32px;
     }
 
     .card__icon {
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: var(--radius);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -75,32 +91,33 @@
       text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     h1 {
       font-size: 1.125rem;
       font-weight: 600;
       letter-spacing: -0.01em;
+      color: var(--text);
     }
 
     .sub {
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       color: var(--text-subtle);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .boxes {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .box {
       width: 44px;
-      height: 54px;
+      height: 52px;
       background: var(--surface);
       border: 1.5px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 8px;
       font-size: 1.25rem;
       font-weight: 600;
       font-family: inherit;
@@ -108,34 +125,45 @@
       color: var(--text);
       caret-color: var(--accent);
       outline: none;
-      transition: border-color 0.15s ease;
+      transition: border-color 0.15s;
       text-transform: uppercase;
     }
 
     .box:focus {
-      border-color: var(--accent);
+      border-color: var(--border-focus);
+    }
+
+    .box:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .box--filled {
-      border-color: var(--text-muted);
+      border-color: oklch(from var(--border) calc(l + 0.08) c h);
     }
 
     .btn {
       width: 100%;
-      height: 48px;
+      height: 46px;
       background: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
       border: none;
-      border-radius: var(--radius);
+      border-radius: 8px;
       font-size: 0.9375rem;
-      font-weight: 600;
+      font-weight: 500;
       font-family: inherit;
       cursor: pointer;
-      transition: background 0.15s ease, opacity 0.15s ease;
+      transition: opacity 0.15s;
+      letter-spacing: -0.01em;
     }
 
-    .btn:hover {
-      background: var(--accent-hover);
+    .btn:hover:not(:disabled) {
+      opacity: 0.88;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .btn:disabled {
@@ -148,32 +176,25 @@
       color: var(--error);
       text-align: center;
       min-height: 1.2em;
-      transition: opacity 0.15s ease;
     }
 
-    .brand {
-      font-size: 0.6875rem;
-      color: var(--text-muted);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      font-weight: 500;
-    }
-
-    /* meal-type accent dots for warmth */
-    .accent-dots {
+    .meal-dots {
       display: flex;
-      gap: 6px;
+      gap: 8px;
+      align-items: center;
     }
-    .accent-dots span {
-      width: 6px;
-      height: 6px;
+
+    .meal-dots span {
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
-      opacity: .35;
+      opacity: 0.4;
     }
-    .accent-dots span:nth-child(1) { background: #f59e0b; }
-    .accent-dots span:nth-child(2) { background: #22c55e; }
-    .accent-dots span:nth-child(3) { background: #a78bfa; }
-    .accent-dots span:nth-child(4) { background: #14b8a6; }
+
+    .meal-dots span:nth-child(1) { background: var(--meal-bf); }
+    .meal-dots span:nth-child(2) { background: var(--meal-lu); }
+    .meal-dots span:nth-child(3) { background: var(--meal-di); }
+    .meal-dots span:nth-child(4) { background: var(--meal-si); }
   </style>
 </head>
 <body>
@@ -204,7 +225,7 @@
 
     <button class="btn" id="btn" type="button">Unlock</button>
 
-    <div class="accent-dots">
+    <div class="meal-dots">
       <span></span><span></span><span></span><span></span>
     </div>
 

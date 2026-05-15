@@ -9,6 +9,9 @@
     const INGRESS_PATH = "{{ ingress_path }}";
     function api(path) { return INGRESS_PATH + path; }
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ ingress_path }}/favicon.ico" sizes="any">
   <link rel="stylesheet" href="{{ ingress_path }}/assets/style.css">
 </head>
@@ -22,7 +25,7 @@
       <span x-show="mode !== 'haos'">Mealie Planner</span>
     </span>
     <div class="navbar-end">
-      <div x-show="configured">
+      <div x-show="configured" class="navbar-status">
         <div x-show="mealieReachable" class="status-dot status-dot--ok">
           <span class="status-dot__pip"></span>
           <span x-text="mealieVersion || 'Connected'"></span>
@@ -119,7 +122,7 @@
             <div class="form-stack">
               <template x-if="configured">
                 <div class="notice">
-                  <span x-show="mealieReachable">Connected to Mealie<span x-show="mealieVersion"> &mdash; <strong x-text="mealieVersion"></strong></span></span>
+                  <span x-show="mealieReachable">Connected to Mealie<span x-show="mealieVersion"> &middot; <span x-text="mealieVersion"></span></span></span>
                   <span x-show="!mealieReachable">Configured but Mealie is currently unreachable</span>
                 </div>
               </template>
@@ -257,10 +260,7 @@
                              @mouseenter="showTooltip(entry, $event)"
                              @mouseleave="hideTooltip()"
                              @dblclick="openModalReplace(item.date, item.mt, entry)">
-                          <img class="chip__thumb"
-                            :src="entry.image_url"
-                            :alt="entry.recipe_name"
-                            @error="$event.target.style.display='none'">
+                          <img class="chip__thumb" :src="entry.image_url" :alt="entry.recipe_name" @error="$event.target.style.display='none'">
                           <span class="chip__name" x-text="entry.recipe_name"></span>
                           <button class="chip__rm" @click.stop="removeRecipe(item.date, item.mt, entry.id)" title="Remove">
                             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -294,6 +294,22 @@
 
     <!-- mobile -->
     <div class="mobile-view" x-show="enabledMealTypes.length > 0">
+      <!-- Top-level skeleton while mobileDays haven't populated yet -->
+      <div x-show="mobileDays.length === 0" class="mobile-init-skel">
+        <template x-for="i in [1,2,3,4]" :key="i">
+          <div class="mobile-skel-day">
+            <div class="mobile-skel-hdr">
+              <div class="skel mobile-skel-bar" style="width:90px;height:16px;border-radius:6px"></div>
+              <div class="skel mobile-skel-bar" style="width:56px;height:12px;border-radius:6px"></div>
+            </div>
+            <div class="mobile-skel-body">
+              <template x-for="j in enabledMealTypes" :key="j">
+                <div class="skel" style="height:52px;border-radius:10px"></div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
       <template x-for="day in mobileDays" :key="day.date">
         <div class="mobile-week-day" :class="day.isToday && 'mobile-week-day--today'">
           <div class="mobile-week-day__hdr">
@@ -308,7 +324,7 @@
                  @drop="onDrop($event.currentTarget.dataset.date, $event.currentTarget.dataset.mt)"
                  @click="setActiveCell($el.dataset.date, $el.dataset.mt)">
               <p class="mobile-slot__type" :class="'mobile-slot__type--' + mt" x-text="mt"></p>
-              <div x-show="planLoading" class="skel" style="height:44px;border-radius:8px;margin-bottom:var(--space-3)"></div>
+              <div x-show="planLoading" class="skel" style="height:52px;border-radius:8px;margin-bottom:var(--space-3)"></div>
               <template x-if="!planLoading">
                 <div>
                   <template x-for="(entry, idx) in getSlot(day.date, mt)" :key="entry.id || idx">

@@ -28,7 +28,7 @@ function planner() {
 
     initialized: false,
     configured: false,
-    mode: 'docker',
+    mode: 'haos',
     mealieReachable: false,
     mealieVersion: null,
 
@@ -152,8 +152,9 @@ function planner() {
         if (!this.configured) { this.settingsOpen = true; return; }
         const cfg = await this._fetch('/api/config');
         this.settingsForm.mealie_url = cfg.mealie_url;
-        await Promise.all([this.loadMealPlan(), this.loadRecipes(), this.loadRecipeActions()]);
+        // Populate mobileDays before loading data so skeletons appear inside each day slot
         await this.initMobileScroll();
+        await Promise.all([this.loadMealPlan(), this.loadRecipes(), this.loadRecipeActions()]);
       } catch (e) {
         this.toast('Failed to reach backend. Is the server running?');
       } finally {
@@ -302,6 +303,7 @@ function planner() {
       this.modalMode = 'add'; this.modalReplaceEntry = null;
       this.modalOpen = true;
       if (!this.recipesLoadedAt || Date.now() - this.recipesLoadedAt > RECIPES_STALE_MS) this.loadRecipes();
+      else this._pollForNewRecipes();
       this.$nextTick(() => this.$refs.searchInput?.focus());
     },
 
@@ -310,7 +312,15 @@ function planner() {
       this.modalMode = 'replace'; this.modalReplaceEntry = entry;
       this.modalOpen = true;
       if (!this.recipesLoadedAt || Date.now() - this.recipesLoadedAt > RECIPES_STALE_MS) this.loadRecipes();
+      else this._pollForNewRecipes();
       this.$nextTick(() => this.$refs.searchInput?.focus());
+    },
+
+    async _pollForNewRecipes() {
+      try {
+        const { stale } = await this._fetch('/api/recipes/poll');
+        if (stale) setTimeout(() => this.loadRecipes(), 3000);
+      } catch (_) {}
     },
 
     async modalSparkle() {
