@@ -5,6 +5,7 @@
 - Fix: the planner no longer shows a blank screen while loading
 - Fix: refreshing the recipe cache from settings no longer freezes the panel
 - Fix: large recipe libraries (1000+) no longer cause a crash when the cache refreshes
+- Fix: Entering an invalid Mealie URL now shows a proper error message (#1)
 
 ## 0.3.0
 
