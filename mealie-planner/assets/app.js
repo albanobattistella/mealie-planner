@@ -1,4 +1,5 @@
 const RECIPES_STALE_MS = 5 * 60 * 1000;
+const PLAN_CACHE_TTL_MS = 5 * 60 * 1000;
 const SUPPORTED_LOCALES = ['en', 'de', 'nl', 'es', 'fr', 'pl'];
 
 function planner() {
@@ -158,6 +159,9 @@ function planner() {
     async init() {
       this.applyTheme();
       this.buildDays();
+      // Show desktop skeleton immediately when there is no cached plan data
+      const _s = this.days[0]?.date, _e = this.days.at(-1)?.date;
+      if (_s && !this._loadPlanCache(_s, _e)) this.planLoading = true;
       try {
         const status = await this._fetch('/api/status');
         this.configured      = status.configured;
@@ -167,9 +171,14 @@ function planner() {
         if (!this.configured) { this.settingsOpen = true; return; }
         const cfg = await this._fetch('/api/config');
         this.settingsForm.mealie_url = cfg.mealie_url;
-        // Populate mobileDays before loading data so skeletons appear inside each day slot
-        await this.initMobileScroll();
+        // Load data first so mobile skeleton (mobileDays.length === 0) persists until ready
         await Promise.all([this.loadMealPlan(), this.loadRecipes(), this.loadRecipeActions()]);
+        await this.initMobileScroll();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState !== 'visible' || !this.days.length) return;
+          const s = this.days[0].date, e = this.days.at(-1).date;
+          if (!this._loadPlanCache(s, e)) this.loadMealPlan();
+        });
       } catch (e) {
         this.toast(this.t('error.backend'));
       } finally {
@@ -251,6 +260,7 @@ function planner() {
         if (!raw) return null;
         const c = JSON.parse(raw);
         if (c.start !== start || c.end !== end) return null;
+        if (Date.now() - (c.ts || 0) > PLAN_CACHE_TTL_MS) return null;
         return c.entries;
       } catch { return null; }
     },
@@ -332,8 +342,9 @@ function planner() {
 
     async _pollForNewRecipes() {
       try {
-        const { stale } = await this._fetch('/api/recipes/poll');
-        if (stale) setTimeout(() => this.loadRecipes(), 3000);
+        const { stale, total_count } = await this._fetch('/api/recipes/poll');
+        const countMismatch = total_count !== undefined && total_count !== this.allRecipes.length;
+        if (stale || countMismatch) setTimeout(() => this.loadRecipes(), 3000);
       } catch (_) {}
     },
 

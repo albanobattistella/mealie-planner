@@ -411,6 +411,7 @@ async def refresh_recipe_cache() -> int:
 
         page = 1
         total = 0
+        seen_ids: set[str] = set()
         base_url = url.rstrip("/")
 
         db = await get_db()
@@ -434,6 +435,7 @@ async def refresh_recipe_cache() -> int:
 
                 now = int(time.time())
                 for r in items:
+                    seen_ids.add(r["id"])
                     description = r.get("description") or ""
                     tags = json.dumps(
                         [
@@ -457,6 +459,15 @@ async def refresh_recipe_cache() -> int:
                 if len(items) < 100:
                     break
                 page += 1
+
+        # Purge recipes deleted from Mealie; guard against wiping on a partial API failure
+        if seen_ids:
+            placeholders = ",".join("?" * len(seen_ids))
+            await db.execute(
+                f"DELETE FROM recipes WHERE id NOT IN ({placeholders})",
+                list(seen_ids),
+            )
+            await db.commit()
 
         await db.execute(
             "INSERT OR REPLACE INTO cache_meta (key, value) VALUES ('recipes_last_refreshed', ?)",
@@ -858,7 +869,11 @@ async def poll_recipe_changes():
         stale = recipe_ts > last_refreshed
         if stale and not _refresh_in_progress:
             _task_manager.spawn(refresh_recipe_cache())
-        return {"stale": stale}
+        db = await get_db()
+        cur = await db.execute("SELECT COUNT(*) FROM recipes")
+        row = await cur.fetchone()
+        total_count = row[0] if row else 0
+        return {"stale": stale, "total_count": total_count}
     except Exception:
         return {"stale": False}
 
