@@ -731,11 +731,16 @@ function planner() {
     },
 
     /* http */
+    _extractError(body, status) {
+      const d = body?.detail;
+      if (Array.isArray(d)) return d[0]?.ctx?.error || d[0]?.msg || `HTTP ${status}`;
+      return d || `HTTP ${status}`;
+    },
     async _fetch(path) {
       const r = await fetch(api(path));
       if (!r.ok) {
         const body = await r.json().catch(() => ({}));
-        throw new Error(body.detail || `HTTP ${r.status}`);
+        throw new Error(this._extractError(body, r.status));
       }
       return r.json();
     },
@@ -743,7 +748,7 @@ function planner() {
       const r = await fetch(api(path), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
       if (!r.ok) {
         const body2 = await r.json().catch(() => ({}));
-        throw new Error(body2.detail || `HTTP ${r.status}`);
+        throw new Error(this._extractError(body2, r.status));
       }
       return r.json().catch(() => ({}));
     },
