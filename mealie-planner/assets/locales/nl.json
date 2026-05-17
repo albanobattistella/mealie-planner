@@ -30,7 +30,7 @@
     "pastDays": "Toon vorige dagen · {n} dag(en)",
     "futureDays": "Toon volgende dagen · {n} dag(en)",
     "tipKeyboard": "Tip! Gebruik ← → om één dag per keer te scrollen.",
-    "mealSlotsLabel": "Zichtbare maaltijdslots",
+    "mealSlotsLabel": "Toon maaltijden",
     "cacheLabel": "Receptencache",
     "cacheRefresh": "Vernieuwen",
     "cacheRefreshing": "Bezig met vernieuwen…",
