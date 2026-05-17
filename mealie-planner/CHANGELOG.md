@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+
+- Fix: the recipe picker can now be scrolled on iOS (Home Assistant Companion app)
+- Fix: the day-range sliders are hidden on mobile, where they don't apply
+
 ## 0.3.1
 
 - Fix: the planner no longer shows a blank screen while loading
