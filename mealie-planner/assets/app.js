@@ -308,12 +308,29 @@ function planner() {
 
     _lockBodyScroll() {
       this._scrollY = window.scrollY;
+      this._touchStartY = 0;
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${this._scrollY}px`;
+      document.body.style.width = '100%';
+      this._onTouchStart = (e) => { this._touchStartY = e.touches[0]?.clientY ?? 0; };
+      this._onTouchMove = (e) => {
+        const el = e.target.closest('.modal-body, .settings-inner');
+        if (!el) { e.preventDefault(); return; }
+        // at scroll boundaries prevent default so rubber-band doesn't leak to body
+        if (el.scrollTop <= 0 && e.touches[0].clientY > this._touchStartY) { e.preventDefault(); return; }
+        if (el.scrollTop + el.clientHeight >= el.scrollHeight && e.touches[0].clientY < this._touchStartY) { e.preventDefault(); return; }
+      };
+      document.addEventListener('touchstart', this._onTouchStart, { passive: true });
+      document.addEventListener('touchmove', this._onTouchMove, { passive: false });
     },
     _unlockBodyScroll() {
       document.body.style.overflow = '';
-      document.body.style.touchAction = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.removeEventListener('touchstart', this._onTouchStart);
+      document.removeEventListener('touchmove', this._onTouchMove);
       window.scrollTo(0, this._scrollY);
     },
 
