@@ -324,19 +324,6 @@ function planner() {
       document.addEventListener('touchstart', this._onTouchStart, { passive: true });
       document.addEventListener('touchmove', this._onTouchMove, { passive: false });
     },
-    _activateModalScroll() {
-      // iOS ignores DOM mutations that occur during an opacity transition (the 150ms enter
-      // animation), so it never registers .modal-body as a scroll container on initial render.
-      // Waiting until after the transition and injecting+removing a real DOM node forces iOS
-      // to re-evaluate the scroll container while the element is fully visible.
-      setTimeout(() => {
-        const mb = document.querySelector('.modal-body');
-        if (!mb) return;
-        const sentinel = document.createElement('div');
-        mb.appendChild(sentinel);
-        requestAnimationFrame(() => sentinel.remove());
-      }, 160);
-    },
     _unlockBodyScroll() {
       document.body.style.overflow = '';
       document.body.style.position = '';
@@ -354,10 +341,7 @@ function planner() {
       this.modalOpen = true;
       if (!this.recipesLoadedAt || Date.now() - this.recipesLoadedAt > RECIPES_STALE_MS) this.loadRecipes();
       else this._pollForNewRecipes();
-      this.$nextTick(() => {
-        this.$refs.searchInput?.focus();
-        this._activateModalScroll();
-      });
+      this.$nextTick(() => setTimeout(() => this.$refs.searchInput?.focus(), 160));
     },
 
     openModalReplace(date, mt, entry) {
@@ -366,10 +350,7 @@ function planner() {
       this.modalOpen = true;
       if (!this.recipesLoadedAt || Date.now() - this.recipesLoadedAt > RECIPES_STALE_MS) this.loadRecipes();
       else this._pollForNewRecipes();
-      this.$nextTick(() => {
-        this.$refs.searchInput?.focus();
-        this._activateModalScroll();
-      });
+      this.$nextTick(() => setTimeout(() => this.$refs.searchInput?.focus(), 160));
     },
 
     async _pollForNewRecipes() {
