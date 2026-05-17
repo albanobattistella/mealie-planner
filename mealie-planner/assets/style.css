@@ -352,6 +352,9 @@
      .tip-keyboard-only {
          display: none;
     }
+     .settings-day-range {
+         display: none;
+    }
 }
  .section-label {
      font-size: var(--text-xs);
