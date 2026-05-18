@@ -657,27 +657,43 @@
       </div>
 
       <div class="qa-footer">
-        <p x-show="quickAddError" class="error-msg" x-text="quickAddError"></p>
+        <!-- success state -->
+        <template x-if="quickAddDone">
+          <div class="qa-done">
+            <div class="qa-done__row">
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="qa-done__icon"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <span class="qa-done__name" x-text="quickAddDone.name"></span>
+            </div>
+            <a :href="getMealieLink(quickAddDone.slug)" target="_blank" rel="noopener noreferrer"
+               class="btn btn-ghost btn-full" x-text="t('quickAdd.openInMealie')"></a>
+          </div>
+        </template>
 
-        <!-- URL import button -->
-        <button x-show="quickAddTab === 'url'"
-                @click="importRecipeFromUrl()"
-                :disabled="quickAddLoading || !quickAddUrl.trim()"
-                class="btn btn-primary btn-full">
-          <svg x-show="quickAddLoading" class="btn-spinner" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span x-show="!quickAddLoading" x-text="t('quickAdd.btnImport')"></span>
-          <span x-show="quickAddLoading" x-text="t('quickAdd.importing')"></span>
-        </button>
+        <template x-if="!quickAddDone">
+          <div class="qa-footer-actions">
+            <p x-show="quickAddError" class="error-msg" x-text="quickAddError"></p>
 
-        <!-- New recipe button -->
-        <button x-show="quickAddTab === 'recipe'"
-                @click="quickCreateRecipe()"
-                :disabled="quickAddLoading || !quickAddName.trim()"
-                class="btn btn-primary btn-full">
-          <svg x-show="quickAddLoading" class="btn-spinner" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          <span x-show="!quickAddLoading" x-text="t('quickAdd.btnCreate')"></span>
-          <span x-show="quickAddLoading" x-text="t('quickAdd.creating')"></span>
-        </button>
+            <!-- URL import button -->
+            <button x-show="quickAddTab === 'url'"
+                    @click="importRecipeFromUrl()"
+                    :disabled="quickAddLoading || !quickAddUrl.trim()"
+                    class="btn btn-primary btn-full">
+              <svg x-show="quickAddLoading" class="btn-spinner" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span x-show="!quickAddLoading" x-text="t('quickAdd.btnImport')"></span>
+              <span x-show="quickAddLoading" x-text="t('quickAdd.importing')"></span>
+            </button>
+
+            <!-- New recipe button -->
+            <button x-show="quickAddTab === 'recipe'"
+                    @click="quickCreateRecipe()"
+                    :disabled="quickAddLoading || !quickAddName.trim()"
+                    class="btn btn-primary btn-full">
+              <svg x-show="quickAddLoading" class="btn-spinner" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span x-show="!quickAddLoading" x-text="t('quickAdd.btnCreate')"></span>
+              <span x-show="quickAddLoading" x-text="t('quickAdd.creating')"></span>
+            </button>
+          </div>
+        </template>
       </div>
 
     </div>

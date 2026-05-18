@@ -138,7 +138,8 @@
     "addedToSlot": "✦ {name} added to plan",
     "errorUrlRequired": "Paste the URL of a recipe page first.",
     "errorNameRequired": "Recipe name can't be empty.",
-    "errorAddedNotPlanned": "{name} was created in Mealie but couldn't be added to this slot — search for it with + add."
+    "errorAddedNotPlanned": "{name} was created in Mealie but couldn't be added to this slot — search for it with + add.",
+    "openInMealie": "Open in Mealie to add ingredients & steps ↗"
   },
   "auth": {
     "pageTitle": "Mealie Planner · Unlock",

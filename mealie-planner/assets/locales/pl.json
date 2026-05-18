@@ -138,7 +138,8 @@
     "addedToSlot": "✦ {name} dodano do planu",
     "errorUrlRequired": "Najpierw wklej adres strony z przepisem.",
     "errorNameRequired": "Nazwa przepisu nie może być pusta.",
-    "errorAddedNotPlanned": "{name} został utworzony w Mealie, ale nie udało się dodać do tego slotu — wyszukaj go przez + dodaj."
+    "errorAddedNotPlanned": "{name} został utworzony w Mealie, ale nie udało się dodać do tego slotu — wyszukaj go przez + dodaj.",
+    "openInMealie": "Otwórz w Mealie, aby dodać składniki i kroki ↗"
   },
   "auth": {
     "pageTitle": "Mealie Planner · Odblokuj",

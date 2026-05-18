@@ -138,7 +138,8 @@
     "addedToSlot": "✦ {name} zum Plan hinzugefügt",
     "errorUrlRequired": "Bitte zuerst die URL einer Rezeptseite einfügen.",
     "errorNameRequired": "Rezeptname darf nicht leer sein.",
-    "errorAddedNotPlanned": "{name} wurde in Mealie erstellt, konnte aber nicht zum Slot hinzugefügt werden – suche es mit + hinzu."
+    "errorAddedNotPlanned": "{name} wurde in Mealie erstellt, konnte aber nicht zum Slot hinzugefügt werden – suche es mit + hinzu.",
+    "openInMealie": "In Mealie öffnen, um Zutaten & Schritte hinzuzufügen ↗"
   },
   "auth": {
     "pageTitle": "Mealie Planner · Entsperren",

@@ -66,6 +66,7 @@ function planner() {
     quickAddImagePreview: null,
     quickAddLoading: false,
     quickAddError: null,
+    quickAddDone: null,
 
     activeCell: null,  // { date, mt } last clicked cell
 
@@ -796,12 +797,14 @@ function planner() {
       if (this.quickAddImagePreview) { URL.revokeObjectURL(this.quickAddImagePreview); this.quickAddImagePreview = null; }
       this.quickAddLoading = false;
       this.quickAddError = null;
+      this.quickAddDone = null;
       this.quickAddOpen = true;
       this.$nextTick(() => setTimeout(() => this.$refs.quickAddUrlInput?.focus(), 120));
     },
 
     closeQuickAdd() {
       this.quickAddOpen = false;
+      this.quickAddDone = null;
       if (this.quickAddImagePreview) { URL.revokeObjectURL(this.quickAddImagePreview); this.quickAddImagePreview = null; }
     },
 
@@ -821,7 +824,7 @@ function planner() {
       try {
         const recipe = await this._post('/api/recipes/import-url', { url });
         await this._addCreatedRecipeToSlot(recipe, this.quickAddDate, this.quickAddMt);
-        this.closeQuickAdd();
+        this.quickAddDone = { name: recipe.name, slug: recipe.slug };
       } catch (e) {
         this.quickAddError = this._friendlyError(e);
       } finally {
@@ -844,7 +847,7 @@ function planner() {
           } catch (_) {}
         }
         await this._addCreatedRecipeToSlot(recipe, this.quickAddDate, this.quickAddMt);
-        this.closeQuickAdd();
+        this.quickAddDone = { name: recipe.name, slug: recipe.slug };
       } catch (e) {
         this.quickAddError = this._friendlyError(e);
       } finally {

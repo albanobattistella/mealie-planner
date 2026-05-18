@@ -138,7 +138,8 @@
     "addedToSlot": "✦ {name} añadido al plan",
     "errorUrlRequired": "Pega primero la URL de una página de receta.",
     "errorNameRequired": "El nombre de la receta no puede estar vacío.",
-    "errorAddedNotPlanned": "{name} se creó en Mealie pero no se pudo añadir a este hueco — búscalo con + añadir."
+    "errorAddedNotPlanned": "{name} se creó en Mealie pero no se pudo añadir a este hueco — búscalo con + añadir.",
+    "openInMealie": "Abrir en Mealie para añadir ingredientes y pasos ↗"
   },
   "auth": {
     "pageTitle": "Mealie Planner · Desbloquear",

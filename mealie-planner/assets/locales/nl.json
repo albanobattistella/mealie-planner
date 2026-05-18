@@ -138,7 +138,8 @@
     "addedToSlot": "✦ {name} aan plan toegevoegd",
     "errorUrlRequired": "Plak eerst de URL van een receptpagina.",
     "errorNameRequired": "Receptnaam mag niet leeg zijn.",
-    "errorAddedNotPlanned": "{name} is aangemaakt in Mealie maar kon niet aan dit slot worden toegevoegd — zoek het via + toevoegen."
+    "errorAddedNotPlanned": "{name} is aangemaakt in Mealie maar kon niet aan dit slot worden toegevoegd — zoek het via + toevoegen.",
+    "openInMealie": "Open in Mealie om ingrediënten & stappen toe te voegen ↗"
   },
   "auth": {
     "pageTitle": "Mealie Planner · Ontgrendelen",
