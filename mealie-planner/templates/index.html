@@ -302,7 +302,6 @@
                     <div class="cell-acts" x-show="hasSlot(item.date, item.mt) || isSparkle(item.date, item.mt)">
                       <button class="ca ca--accent" :class="{'ca--sparkling': isSparkle(item.date, item.mt)}" @click="sparkle(item.date, item.mt)" :title="t('planner.sparkleTitle')"><span class="sparkle-glyph">✦</span> <span x-text="t('planner.sparkle')"></span></button>
                       <button class="ca" @click="openModal(item.date, item.mt)" x-text="t('planner.addShort')"></button>
-                      <button class="ca" x-show="showQuickAdd" @click.stop="openQuickAdd(item.date, item.mt)" x-text="t('quickAdd.btnCellShort')"></button>
                     </div>
                     <template x-if="!hasSlot(item.date, item.mt) && !isSparkle(item.date, item.mt)">
                       <button class="cell-empty-btn" @click="openModal(item.date, item.mt)" :title="t('planner.addRecipe')">
@@ -389,8 +388,6 @@
                     <button class="ca ca--accent" :class="{'ca--sparkling': isSparkle(day.date, mt)}" @click="sparkle(day.date, mt)"><span class="sparkle-glyph">✦</span> <span x-text="t('planner.sparkle')"></span></button>
                     <span class="ca-sep">·</span>
                     <button class="ca" @click="openModal(day.date, mt)" x-text="t('planner.addShort')"></button>
-                    <span x-show="showQuickAdd" class="ca-sep">·</span>
-                    <button x-show="showQuickAdd" class="ca" @click="openQuickAdd(day.date, mt)" x-text="t('quickAdd.btnCellShort')"></button>
                   </div>
                 </div>
               </template>
