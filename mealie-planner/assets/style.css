@@ -1317,14 +1317,6 @@
  @media (max-width: 640px) {
      .notif-hub {
          display: grid;
-         left: var(--space-4);
-         right: var(--space-4);
-         width: auto;
-     }
-     .undo-bar {
-         left: var(--space-4);
-         right: var(--space-4);
-         width: auto;
      }
      .notif-hub > * {
          grid-column: 1;

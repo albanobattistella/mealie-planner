@@ -1,12 +1,19 @@
 # Changelog
 
+## 0.4.1
+
+- Fix: remove add recipe text, replaced by the quick add button
+- Fix: rewrite various translations
+- Fix: change the alignment of delete confirmation toast
+- Fix: change the start position of mobile timeline to current day
+
 ## 0.4.0
 
 - You can create or import a recipe from a URL directly from the planner, without opening Mealie
 - Recipe cards now show a colour gradient when no thumbnail is available
 - Various settings are now stored server-side and follow you across browsers and devices
 - Fix: Modal and settings overlays now animate smoothly
-- Security: Package updates
+- Security: We've updated various packages the app relies on
 
 ## 0.3.3
 

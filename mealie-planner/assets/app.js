@@ -734,6 +734,7 @@ function planner() {
       // loadMealPlan already fetched this date range — just set mobileDays, no separate fetch needed
       this.mobileDays = batch;
       await this.$nextTick();
+      await new Promise(r => requestAnimationFrame(r));
       document.querySelector('.mobile-week-day--today')?.scrollIntoView({ behavior: 'instant', block: 'start' });
       const sentinel = document.getElementById('mobile-scroll-sentinel');
       if (!sentinel || !('IntersectionObserver' in window)) return;
